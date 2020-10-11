@@ -20,7 +20,7 @@ func_dict = {
     'ncRNA_splicing': 'RNA',
     'splicing': 'Splice_Site',
     'UTR3': '3\'UTR',
-    'UTR5': '5￿\'UTR'
+    'UTR5': '5\'UTR'
 }
 exonic_func_dict = {
     'frameshift deletion': 'Frame_Shift_Del',
@@ -44,6 +44,15 @@ def fetch_variant_classification(row):
     else:
         return np.nan
 
+def fetch_variant_type(row):
+    ref = row['Reference_Allele']
+    alt = row['Tumor_Seq_Allele1']
+    if ref == "-":
+        return "INS"
+    elif alt == "-":
+        return "DEL"
+    else:
+        return "SNP"
 
 #
 # parse args
@@ -73,7 +82,9 @@ df.rename(columns={
 df['NCBI_Build'] = '37'
 df['Tumor_Seq_Allele2'] = df['Tumor_Seq_Allele1']
 df['Variant_Classification'] = df.apply(lambda row: fetch_variant_classification(row), axis=1)
-df = df[['Hugo_Symbol', 'NCBI_Build', 'Chromosome', 'Start_position', 'End_position', 'Variant_Classification',
+df['Variant_Type'] = df.apply(lambda row: fetch_variant_type(row), axis=1)
+
+df = df[['Hugo_Symbol', 'NCBI_Build', 'Chromosome', 'Start_position', 'End_position', 'Variant_Classification', 'Variant_Type',
          'Reference_Allele', 'Tumor_Seq_Allele1', 'Tumor_Seq_Allele2', 'Tumor_Sample_Barcode',
          'ExonicFunc.refGene', 'Func.refGene']]
 
